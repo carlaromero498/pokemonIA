@@ -36,6 +36,11 @@ public class AStar {
         }
     }
 
+    /** Devolve true se o carácter é terreno (M, A, F, R ou .). */
+    public static boolean ehTerreno(char c) {
+        return c == 'M' || c == 'A' || c == 'F' || c == 'R' || c == '.';
+    }
+
     public List<Estado> vizinhosValidos(Estado atual) {
         List<Estado> vizinhos = new ArrayList<>();
 
