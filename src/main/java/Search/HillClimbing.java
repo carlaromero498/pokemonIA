@@ -1,5 +1,7 @@
 package Search;
 
+import Gym.Gym;
+import Battle.Battle;
 import Pokemon.Pokemon;
 
 import java.util.ArrayList;
@@ -8,6 +10,39 @@ import java.util.Random;
 
 public class HillClimbing
 {
+
+    private List<Gym> gyms;
+
+    public HillClimbing()
+    {
+        gyms = new ArrayList<>();
+
+        gyms.add(new Gym("2", 35));
+        gyms.add(new Gym("3", 40));
+        gyms.add(new Gym("4", 45));
+        gyms.add(new Gym("5", 50));
+        gyms.add(new Gym("6", 55));
+        gyms.add(new Gym("7", 60));
+        gyms.add(new Gym("8", 65));
+        gyms.add(new Gym("9", 70));
+        gyms.add(new Gym("B", 75));
+        gyms.add(new Gym("C", 80));
+        gyms.add(new Gym("D", 85));
+        gyms.add(new Gym("E", 90));
+        gyms.add(new Gym("G", 95));
+        gyms.add(new Gym("H", 100));
+        gyms.add(new Gym("I", 110));
+        gyms.add(new Gym("J", 120));
+        gyms.add(new Gym("K", 130));
+        gyms.add(new Gym("L", 140));
+        gyms.add(new Gym("N", 150));
+        gyms.add(new Gym("O", 155));
+        gyms.add(new Gym("P", 160));
+        gyms.add(new Gym("Q", 165));
+        gyms.add(new Gym("S", 170));
+        gyms.add(new Gym("T", 180));
+    }
+
     public Solution createInitialSolution() {
 
 
@@ -50,5 +85,20 @@ public class HillClimbing
         }
 
         return solution;
+    }
+
+    public double calculateCost(Solution solution)
+    {
+        double totalCost = 0;
+
+        for (int i = 0; i < solution.getBattles().size(); i++)
+        {
+            List<Pokemon> pokemons = solution.getBattles().get(i);
+            Gym gym = gyms.get(i);
+
+            totalCost += Battle.calculateTime(gym, pokemons);
+        }
+
+        return totalCost;
     }
 }
