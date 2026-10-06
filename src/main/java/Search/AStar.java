@@ -10,23 +10,23 @@ import java.util.HashSet;
 
 public class AStar {
 
-    private final char[][] mapa;
-    private int numExpandidos; // nós expandidos na última pesquisa
+    private final char[][] map;
+    private int numExpanded; // nodes expanded in the last search
 
-    public AStar(char[][] mapa) {
-        this.mapa = mapa;
+    public AStar(char[][] map) {
+        this.map = map;
     }
 
-    // custo mínimo possível de um passo (usado para garantir que a heurística é admissível)
-    private static final int CUSTO_MINIMO_PASSO = 1;
+    // minimum possible cost per step (ensures heuristic is admissible)
+    private static final int MIN_STEP_COST = 1;
 
-    public static int manhattan(Estado atual, Estado objetivo) {
-        int deltaLinha = Math.abs(atual.line() - objetivo.line());
-        int deltaColuna = Math.abs(atual.column() - objetivo.column());
-        return (deltaLinha + deltaColuna) * CUSTO_MINIMO_PASSO;
+    public static int manhattan(Estado current, Estado goal) {
+        int deltaRow = Math.abs(current.line() - goal.line());
+        int deltaCol = Math.abs(current.column() - goal.column());
+        return (deltaRow + deltaCol) * MIN_STEP_COST;
     }
 
-    public static int custoCelula(char c) {
+    public static int cellCost(char c) {
         switch (c) {
             case 'M': return 200;
             case 'A': return 30;
@@ -36,84 +36,84 @@ public class AStar {
         }
     }
 
-    /** Devolve true se o carácter é terreno (M, A, F, R ou .). */
-    public static boolean ehTerreno(char c) {
+    /** Returns true if the character is terrain (M, A, F, R or .). */
+    public static boolean isTerrain(char c) {
         return c == 'M' || c == 'A' || c == 'F' || c == 'R' || c == '.';
     }
 
-    public List<Estado> vizinhosValidos(Estado atual) {
-        List<Estado> vizinhos = new ArrayList<>();
+    public List<Estado> validNeighbors(Estado current) {
+        List<Estado> neighbors = new ArrayList<>();
 
-        int linha = atual.line();
-        int coluna = atual.column();
+        int row = current.line();
+        int col = current.column();
 
-        int[][] deslocamentos = { {0, 1}, {0, -1}, {1, 0}, {-1, 0} }; // direita, esquerda, baixo, cima
+        int[][] offsets = { {0, 1}, {0, -1}, {1, 0}, {-1, 0} }; // right, left, down, up
 
-        for (int[] d : deslocamentos) {
-            int nLinha = linha + d[0];
-            int nColuna = coluna + d[1];
+        for (int[] d : offsets) {
+            int newRow = row + d[0];
+            int newCol = col + d[1];
 
-            if (nLinha >= 0 && nLinha < mapa.length && nColuna >= 0 && nColuna < mapa[0].length) {
-                vizinhos.add(new Estado(nLinha, nColuna));
+            if (newRow >= 0 && newRow < map.length && newCol >= 0 && newCol < map[0].length) {
+                neighbors.add(new Estado(newRow, newCol));
             }
         }
 
-        return vizinhos;
+        return neighbors;
     }
 
-    public Node procurar(Estado inicio, Estado objetivo) {
-        return procurar(inicio, objetivo, true);
+    public Node search(Estado start, Estado goal) {
+        return search(start, goal, true);
     }
 
-    public Node procurar(Estado inicio, Estado objetivo, boolean usarHeuristica) {
-        PriorityQueue<Node> fronteira = new PriorityQueue<>();
-        Set<Estado> expandidos = new HashSet<>();
+    public Node search(Estado start, Estado goal, boolean useHeuristic) {
+        PriorityQueue<Node> frontier = new PriorityQueue<>();
+        Set<Estado> expanded = new HashSet<>();
 
-        // 1. nó inicial: g=custo da célula de partida (paga-se ao entrar), h=manhattan ou 0, pai=null
-        int gInicial = custoCelula(mapa[inicio.line()][inicio.column()]);
-        int hInicial = usarHeuristica ? manhattan(inicio, objetivo) : 0;
-        Node noInicial = new Node(gInicial, hInicial, null, inicio);
-        fronteira.add(noInicial);
+        // 1. Initial node: g = cost of starting cell (paid on entry), h = manhattan or 0, parent = null
+        int initialG = cellCost(map[start.line()][start.column()]);
+        int initialH = useHeuristic ? manhattan(start, goal) : 0;
+        Node initialNode = new Node(initialG, initialH, null, start);
+        frontier.add(initialNode);
 
-        // 2. enquanto a fronteira não estiver vazia
-        while (!fronteira.isEmpty()) {
+        // 2. While the frontier is not empty
+        while (!frontier.isEmpty()) {
 
-            // 3. tira o nó com menor f
-            Node atual = fronteira.poll();
-            Estado estadoAtual = atual.getEstado();
+            // 3. Remove node with lowest f
+            Node current = frontier.poll();
+            Estado currentState = current.getState();
 
-            // 4. se o estado já foi expandido -> descarta
-            if (expandidos.contains(estadoAtual)) {
+            // 4. If already expanded -> skip
+            if (expanded.contains(currentState)) {
                 continue;
             }
 
-            // 5. se é o objetivo -> devolve o nó
-            // Nota: o objetivo é devolvido antes de ser adicionado a expandidos,
-            // logo não é contado em numExpandidos.
-            if (estadoAtual.equals(objetivo)) {
-                this.numExpandidos = expandidos.size();
-                return atual;
+            // 5. If it's the goal -> return the node
+            // Note: goal is returned before being added to expanded,
+            // so it's not counted in numExpanded.
+            if (currentState.equals(goal)) {
+                this.numExpanded = expanded.size();
+                return current;
             }
 
-            // 6. marca o estado como expandido
-            expandidos.add(estadoAtual);
+            // 6. Mark state as expanded
+            expanded.add(currentState);
 
-            // 7. para cada vizinho válido: cria um Node e mete na fronteira
-            for (Estado vizinho : vizinhosValidos(estadoAtual)) {
-                if (!expandidos.contains(vizinho)) {
-                    int novoG = atual.getG() + custoCelula(mapa[vizinho.line()][vizinho.column()]);
-                    int novoH = usarHeuristica ? manhattan(vizinho, objetivo) : 0;
-                    Node novoNo = new Node(novoG, novoH, atual, vizinho);
-                    fronteira.add(novoNo);
+            // 7. For each valid neighbor: create a Node and add to frontier
+            for (Estado neighbor : validNeighbors(currentState)) {
+                if (!expanded.contains(neighbor)) {
+                    int newG = current.getG() + cellCost(map[neighbor.line()][neighbor.column()]);
+                    int newH = useHeuristic ? manhattan(neighbor, goal) : 0;
+                    Node newNode = new Node(newG, newH, current, neighbor);
+                    frontier.add(newNode);
                 }
             }
         }
 
-        this.numExpandidos = expandidos.size();
-        return null; // sem caminho
+        this.numExpanded = expanded.size();
+        return null; // no path found
     }
 
-    public int getNumExpandidos() {
-        return numExpandidos;
+    public int getNumExpanded() {
+        return numExpanded;
     }
 }

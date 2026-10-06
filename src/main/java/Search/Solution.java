@@ -23,4 +23,9 @@ public class Solution
     {
         battles.add(pokemons);
     }
+
+    public int getNumberOfBattles()
+    {
+        return battles.size();
+    }
 }

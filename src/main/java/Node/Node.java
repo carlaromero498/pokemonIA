@@ -3,16 +3,16 @@ package Node;
 import Estado.Estado;
 
 public class Node implements Comparable<Node> {
-    private int g; //o que gastei desde a partida
-    private int h; //estimativa até destino
-    private Node pai;
-    private Estado estado;
+    private int g; // cost from start to this node
+    private int h; // heuristic estimate to goal
+    private Node parent;
+    private Estado state;
 
-    public Node(int g, int h, Node pai, Estado estado){
-        this.estado = estado;
+    public Node(int g, int h, Node parent, Estado state){
+        this.state = state;
         this.g = g;
         this.h = h;
-        this.pai =  pai;
+        this.parent = parent;
     }
 
     public int getF(){
@@ -27,22 +27,21 @@ public class Node implements Comparable<Node> {
         return h;
     }
 
-    public Node getPai(){ 
-        return pai;
+    public Node getParent(){ 
+        return parent;
     }
 
-    public Estado getEstado(){
-        return estado;
+    public Estado getState(){
+        return state;
     }
 
     @Override 
-    public int compareTo(Node outro){
-        int c = Integer.compare(this.getF(), outro.getF()); 
+    public int compareTo(Node other){
+        int c = Integer.compare(this.getF(), other.getF()); 
         if (c != 0) return c;
         
-        // Se o f for igual, desempata a favor daquele com menor heurística (h)
-        return Integer.compare(this.getH(), outro.getH());
-        // devolve um número negativo se this deve sair antes de outro, zero se são equivalentes e positivo se deve sair depois
-        // integer.compare e não subtração pq pode causar overflow com valores grandes.
+        // Tie-break: prefer the node with lower h (closer to goal)
+        return Integer.compare(this.getH(), other.getH());
+        // Integer.compare avoids overflow that subtraction could cause with large values
     }
 }
