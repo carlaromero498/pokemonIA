@@ -91,14 +91,30 @@ public class HillClimbing
     {
         double totalCost = 0;
 
-        for (int i = 0; i < solution.getBattles().size(); i++)
-        {
-            List<Pokemon> pokemons = solution.getBattles().get(i);
-            Gym gym = gyms.get(i);
-
-            totalCost += Battle.calculateTime(gym, pokemons);
+        for (double battleTime : calculateBattleTimes(solution)) {
+            totalCost += battleTime;
         }
 
         return totalCost;
+    }
+
+    public List<Double> calculateBattleTimes(Solution solution) {
+        if (solution == null || solution.getBattles().size() > gyms.size()) {
+            throw new IllegalArgumentException("Solution must contain no more battles than there are gyms.");
+        }
+
+        List<Double> battleTimes = new ArrayList<>();
+        for (int i = 0; i < solution.getBattles().size(); i++) {
+            battleTimes.add(Battle.calculateTime(gyms.get(i), solution.getBattles().get(i)));
+        }
+        return List.copyOf(battleTimes);
+    }
+
+    public int getGymCount() {
+        return gyms.size();
+    }
+
+    public char getGymSymbol(int index) {
+        return gyms.get(index).getId().charAt(0);
     }
 }
