@@ -1,5 +1,11 @@
 package Main;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import Estado.Estado;
 import Map.MapLoader;
 import Map.MapWindow;
@@ -7,11 +13,6 @@ import Node.Node;
 import Search.AStar;
 import Search.HillClimbing;
 import Search.Solution;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.LinkedHashMap;
 
 public class Main {
 	public static void main(String[] args) {
