@@ -28,4 +28,16 @@ public class Solution
     {
         return battles.size();
     }
+
+    public Solution copy()
+    {
+        Solution copy = new Solution();
+
+        for (List<Pokemon> battle : battles) {
+            copy.addBattle(new ArrayList<>(battle));
+        }
+
+        return copy;
+    }
+
 }

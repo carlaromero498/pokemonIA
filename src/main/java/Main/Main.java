@@ -52,7 +52,7 @@ public class Main {
 
             // 3. Experimento de Busca Local ( - Pessoa 2)
             System.out.println("\n--- 2. LOCAL SEARCH EXPERIMENT (Hill Climbing - Person 2) ---");
-            int numExperiments = 1000000;
+            int numExperiments = 30;
             System.out.printf("Running %d simulations to analyze minimum, average, and standard deviation...%n",
                     numExperiments);
 
@@ -63,8 +63,12 @@ public class Main {
             Solution bestPlan = null;
             double bestBattleCost = Double.MAX_VALUE;
 
+
             for (int i = 0; i < numExperiments; i++) {
-                Solution plan = battlePlanner.createInitialSolution();
+                Solution initialPlan = battlePlanner.createInitialSolution();
+
+                Solution plan = battlePlanner.hillClimb(initialPlan);
+
                 double bCost = battlePlanner.calculateCost(plan);
                 double tCost = routeCost + bCost;
 
@@ -76,6 +80,15 @@ public class Main {
                     bestPlan = plan;
                 }
             }
+            if (bestPlan == null || !battlePlanner.isValidSolution(bestPlan)) {
+                throw new IllegalStateException("No valid battle plan was found.");
+            }
+            battlePlanner.printFinalEnergies(bestPlan);
+            battlePlanner.printBattlePlan(bestPlan);
+            System.out.println(
+                    "¿Best valid plan? " + battlePlanner.isValidSolution(bestPlan)
+            );
+
 
             // Estatísticas de Batalha
             double worstBattleCost = battleCosts.stream().mapToDouble(Double::doubleValue).max().orElse(0);
