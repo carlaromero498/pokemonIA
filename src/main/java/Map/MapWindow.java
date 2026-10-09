@@ -261,11 +261,12 @@ public class MapWindow {
                             Double battleTime = battleTimesByGym.get(cell);
                             if (battleTime != null && GYM_NAMES.containsKey(cell)) {
                                 status.setText(String.format(
-                                        "Battle at Gym %s | estimated duration: %.2f seconds",
+                                        "Battle at Gym %s | estimated duration: %.2f time units",
                                         cell, battleTime));
-                                int battleDelayMillis = (int) Math.min(
-                                        Integer.MAX_VALUE,
-                                        Math.max(1L, Math.round(battleTime * 1000)));
+                                // Scale delay so that battles take ~3 seconds on average (~100 ms per unit)
+                                int battleDelayMillis = (int) Math.max(
+                                        500L,
+                                        Math.min(6000L, Math.round(battleTime * 100)));
                                 ((Timer) e.getSource()).setDelay(battleDelayMillis);
                             } else {
                                 status.setText(String.format(

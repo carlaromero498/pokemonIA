@@ -50,7 +50,7 @@ public class Main {
             int routeCost = originCost + solution.getG();
             int expandedStates = routeAStar.getNumExpanded();
 
-            // 3. Experimento de Busca Local (1000 Simulações - Pessoa 2)
+            // 3. Experimento de Busca Local ( - Pessoa 2)
             System.out.println("\n--- 2. LOCAL SEARCH EXPERIMENT (Hill Climbing - Person 2) ---");
             int numExperiments = 1000000;
             System.out.printf("Running %d simulations to analyze minimum, average, and standard deviation...%n",
