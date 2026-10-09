@@ -50,7 +50,7 @@ public class MapWindow {
     public static void showMap(char[][] map) {
         validateMap(map);
         char[][] mapCopy = copyMap(map);
-        SwingUtilities.invokeLater(() -> createWindow(mapCopy, null, Map.of(), 0));
+        SwingUtilities.invokeLater(() -> createWindow(mapCopy, null, Map.of(), 0, null));
     }
 
     public static void showMapWithPath(char[][] map, List<Estado> path) {
@@ -63,6 +63,11 @@ public class MapWindow {
 
     public static void showMapWithPath(char[][] map, List<Estado> path,
             Map<Character, Double> battleTimesByGym, int stepDelayMillis) {
+        showMapWithPath(map, path, battleTimesByGym, stepDelayMillis, null);
+    }
+
+    public static void showMapWithPath(char[][] map, List<Estado> path,
+            Map<Character, Double> battleTimesByGym, int stepDelayMillis, String statsInfo) {
         validateMap(map);
         if (path == null) {
             showMap(map);
@@ -75,11 +80,11 @@ public class MapWindow {
                 ? Map.of()
                 : Map.copyOf(battleTimesByGym);
         int delay = Math.max(20, stepDelayMillis);
-        SwingUtilities.invokeLater(() -> createWindow(mapCopy, path, battleTimesCopy, delay));
+        SwingUtilities.invokeLater(() -> createWindow(mapCopy, path, battleTimesCopy, delay, statsInfo));
     }
 
     private static void createWindow(char[][] map, List<Estado> path,
-            Map<Character, Double> battleTimesByGym, int stepDelayMillis) {
+            Map<Character, Double> battleTimesByGym, int stepDelayMillis, String statsInfo) {
         JFrame frame = new JFrame("Pokemon IA - Kanto Map");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLayout(new BorderLayout(0, 10));
@@ -90,11 +95,20 @@ public class MapWindow {
                 SwingConstants.LEFT);
         title.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 18));
         title.setBorder(BorderFactory.createEmptyBorder(14, 16, 4, 16));
+        
         JLabel status = new JLabel(path == null ? "Map ready." : "Preparing route animation.");
         status.setBorder(BorderFactory.createEmptyBorder(0, 16, 8, 16));
-        JPanel header = new JPanel(new BorderLayout());
+        
+        JPanel header = new JPanel(new BorderLayout(0, 4));
         header.setOpaque(false);
-        header.add(title, BorderLayout.CENTER);
+        header.add(title, BorderLayout.NORTH);
+        if (statsInfo != null && !statsInfo.isEmpty()) {
+            JLabel stats = new JLabel(statsInfo);
+            stats.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 12));
+            stats.setForeground(new Color(30, 80, 150));
+            stats.setBorder(BorderFactory.createEmptyBorder(0, 16, 4, 16));
+            header.add(stats, BorderLayout.CENTER);
+        }
         header.add(status, BorderLayout.SOUTH);
         frame.add(header, BorderLayout.NORTH);
 
