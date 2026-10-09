@@ -28,15 +28,20 @@ public class AStar {
 
     public static int cellCost(char c) {
         switch (c) {
-            case 'M': return 200;
-            case 'A': return 30;
-            case 'F': return 15;
-            case 'R': return 5;
-            default:  return 1;
+            case 'M':
+                return 200;
+            case 'A':
+                return 30;
+            case 'F':
+                return 15;
+            case 'R':
+                return 5;
+            default:
+                return 1;
         }
     }
 
-    /** Returns true if the character is terrain (M, A, F, R or .). */
+    /** Returns true if the character is terrain */
     public static boolean isTerrain(char c) {
         return c == 'M' || c == 'A' || c == 'F' || c == 'R' || c == '.';
     }
@@ -47,7 +52,7 @@ public class AStar {
         int row = current.line();
         int col = current.column();
 
-        int[][] offsets = { {0, 1}, {0, -1}, {1, 0}, {-1, 0} }; // right, left, down, up
+        int[][] offsets = { { 0, 1 }, { 0, -1 }, { 1, 0 }, { -1, 0 } }; // right, left, down, up
 
         for (int[] d : offsets) {
             int newRow = row + d[0];
@@ -69,7 +74,8 @@ public class AStar {
         PriorityQueue<Node> frontier = new PriorityQueue<>();
         Set<Estado> expanded = new HashSet<>();
 
-        // 1. Initial node: g = cost of starting cell (paid on entry), h = manhattan or 0, parent = null
+        // 1. Initial node: g = cost of starting cell (paid on entry), h = manhattan or
+        // 0, parent = null
         int initialG = cellCost(map[start.line()][start.column()]);
         int initialH = useHeuristic ? manhattan(start, goal) : 0;
         Node initialNode = new Node(initialG, initialH, null, start);

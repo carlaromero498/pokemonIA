@@ -1,14 +1,27 @@
 package Search;
 
 import java.util.PriorityQueue;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
+import Estado.Estado;
+import Node.Node;
 
 public class RouteAStar {
 
+    public static final double DEFAULT_WEIGHT = 1.4;
+
     private final CostTable costTable;
+    private final double weight;
     private int numExpanded;
 
     public RouteAStar(CostTable costTable) {
+        this(costTable, DEFAULT_WEIGHT);
+    }
+
+    public RouteAStar(CostTable costTable, double weight) {
         this.costTable = costTable;
+        this.weight = weight;
     }
 
     /**
@@ -55,12 +68,6 @@ public class RouteAStar {
         return lowerBoundSum;
     }
 
-    // Weight for WA* (Weighted A*)
-    // W = 1.0 is exact A* (optimal but very slow/memory intensive)
-    // W > 1.0 sacrifices the mathematical guarantee of absolute optimality for
-    // extreme speed and memory efficiency.
-    private static final double WEIGHT_WASTAR = 1.19; //9GB of ram must be available
-
     /**
      * Executes the high-level A* search to find the optimal gym visit order.
      */
@@ -74,7 +81,7 @@ public class RouteAStar {
 
         // 1. Nó inicial: Origem, máscara 0
         int startState = RouteState.encode(CostTable.START_INDEX, 0);
-        int initialH = (int) (heuristic(CostTable.START_INDEX, 0) * WEIGHT_WASTAR);
+        int initialH = (int) (heuristic(CostTable.START_INDEX, 0) * weight);
         RouteNode initialNode = new RouteNode(startState, 0, initialH, null);
         frontier.add(initialNode);
 
@@ -131,7 +138,7 @@ public class RouteAStar {
 
                         if (!expanded.get(nextState)) {
                             int newG = current.getG() + stepCost;
-                            int newH = (int) (heuristic(gymLoc, nextMask) * WEIGHT_WASTAR);
+                            int newH = (int) (heuristic(gymLoc, nextMask) * weight);
                             RouteNode nextNode = new RouteNode(nextState, newG, newG + newH, current);
                             frontier.add(nextNode);
                         }
@@ -141,10 +148,76 @@ public class RouteAStar {
         }
 
         this.numExpanded = expanded.cardinality();
-        return null; // sem caminho (não deve acontecer com este mapa)
+        return null; // sem caminho
     }
 
     public int getNumExpanded() {
         return numExpanded;
+    }
+
+    public double getWeight() {
+        return weight;
+    }
+
+    // Reconstructs the ordered list of location indices from the solution node
+    public List<Integer> getLocationOrder(RouteNode solution) {
+        List<Integer> order = new ArrayList<>();
+        RouteNode curr = solution;
+        while (curr != null) {
+            order.add(RouteState.decodeLocation(curr.getEncodedState()));
+            curr = curr.getParent();
+        }
+        Collections.reverse(order);
+        return order;
+    }
+
+    // Reconstructs the ordered list of symbols ('1', gyms, 'U') from the solution
+    // node
+
+    public List<Character> getSymbolOrder(RouteNode solution) {
+        List<Integer> locs = getLocationOrder(solution);
+        List<Character> symbols = new ArrayList<>(locs.size());
+        for (int loc : locs) {
+            symbols.add(costTable.getSymbol(loc));
+        }
+        return symbols;
+    }
+
+    // Reconstructs the complete path on the grid by executing A* between
+    // each consecutive point
+    public List<Estado> reconstructFullPath(char[][] map, RouteNode solution) {
+        List<Integer> locations = getLocationOrder(solution);
+        List<Estado> fullPath = new ArrayList<>();
+        AStar gridAStar = new AStar(map);
+
+        for (int i = 0; i < locations.size() - 1; i++) {
+            Estado startPos = costTable.getPosition(locations.get(i));
+            Estado goalPos = costTable.getPosition(locations.get(i + 1));
+
+            Node legGoal = gridAStar.search(startPos, goalPos);
+            if (legGoal == null) {
+                throw new IllegalStateException("Failed to find path between "
+                        + costTable.getSymbol(locations.get(i)) + " and "
+                        + costTable.getSymbol(locations.get(i + 1)));
+            }
+
+            // Extract leg path from goal back to start
+            List<Estado> leg = new ArrayList<>();
+            Node curr = legGoal;
+            while (curr != null) {
+                leg.add(curr.getState());
+                curr = curr.getParent();
+            }
+            Collections.reverse(leg);
+
+            // Append to fullPath avoiding duplicate connecting cells
+            if (fullPath.isEmpty()) {
+                fullPath.addAll(leg);
+            } else {
+                fullPath.addAll(leg.subList(1, leg.size()));
+            }
+        }
+
+        return fullPath;
     }
 }
