@@ -10,6 +10,7 @@ import java.util.Random;
 
 public class HillClimbing
 {
+    private final Random random = new Random();
 
     private List<Gym> gyms;
 
@@ -185,7 +186,6 @@ public class HillClimbing
 
 
     public Solution createNeighbor(Solution current) {
-        Random random = new Random();
 
         // Copiamos las batallas para no modificar la solución original.
         Solution neighbor = current.copy();

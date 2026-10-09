@@ -58,6 +58,8 @@ public class Main {
 
             HillClimbing battlePlanner = new HillClimbing();
             List<Double> battleCosts = new ArrayList<>(numExperiments);
+
+
             List<Double> totalCosts = new ArrayList<>(numExperiments);
 
             Solution bestPlan = null;
@@ -80,6 +82,7 @@ public class Main {
                     bestPlan = plan;
                 }
             }
+            System.out.println("Experimentos registrados: " + battleCosts.size());
             if (bestPlan == null || !battlePlanner.isValidSolution(bestPlan)) {
                 throw new IllegalStateException("No valid battle plan was found.");
             }
