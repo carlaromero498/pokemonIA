@@ -139,8 +139,6 @@ public class HillClimbing
                 return false;
             }
 
-            // Evitamos que un Pokémon aparezca dos veces
-            // en la misma batalla.
             java.util.Set<String> participants =
                     new java.util.HashSet<>();
 
@@ -164,15 +162,12 @@ public class HillClimbing
                 }
             }
 
-            // Solo descontamos energía cuando todo el equipo
-            // de esa batalla ha superado las comprobaciones.
             for (Pokemon pokemon : battle) {
                 String name = pokemon.getName();
                 energy.put(name, energy.get(name) - 1);
             }
         }
 
-        // Al menos un Pokémon debe llegar con energía positiva.
         for (int remainingEnergy : energy.values()) {
             if (remainingEnergy >= 1) {
                 return true;
@@ -187,7 +182,6 @@ public class HillClimbing
 
     public Solution createNeighbor(Solution current) {
 
-        // Copiamos las batallas para no modificar la solución original.
         Solution neighbor = current.copy();
 
         int gymIndex = random.nextInt(neighbor.getNumberOfBattles());
@@ -204,11 +198,9 @@ public class HillClimbing
                 new Pokemon("Weedle", 1.1, 6)
         );
 
-        // 0 = sustituir, 1 = añadir, 2 = quitar.
         int operation = random.nextInt(3);
 
         if (operation == 0) {
-            // Sustituir un Pokémon por otro que no esté ya en el equipo.
             int position = random.nextInt(battle.size());
 
             List<Pokemon> available = new ArrayList<>();
@@ -237,7 +229,7 @@ public class HillClimbing
             }
 
         } else if (operation == 1) {
-            // Añadir un Pokémon que todavía no participe.
+
             List<Pokemon> available = new ArrayList<>();
 
             for (Pokemon candidate : allPokemon) {
@@ -262,13 +254,13 @@ public class HillClimbing
             }
 
         } else {
-            // Quitar un Pokémon sin dejar el equipo vacío.
+
             if (battle.size() > 1) {
                 battle.remove(random.nextInt(battle.size()));
             }
         }
 
-        // Construimos la solución vecina.
+
         Solution result = new Solution();
 
         for (int i = 0; i < neighbor.getNumberOfBattles(); i++) {
